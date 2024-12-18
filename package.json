@@ -4,14 +4,12 @@
   "description": "yoyo",
   "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "sass": "sass app:app",
+    "sass:watch": "sass --watch app:app"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "gulp-sass": "^5.1.0",
-    "gulp-watch": "^5.0.1",
-    "sass": "^1.59.3"
+    "sass": "^1.83.0"
   }
 }
