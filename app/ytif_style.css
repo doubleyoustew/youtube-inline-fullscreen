@@ -1,9 +1,13 @@
+.ytif-fullscreen {
+  scrollbar-width: none;
+}
 .ytif-fullscreen #page-manager {
   margin-top: 0 !important;
 }
 .ytif-fullscreen #full-bleed-container {
   height: 100vh !important;
   max-height: 100vh !important;
+  min-height: 0 !important;
 }
 .ytif-fullscreen .ytp-size-button {
   display: none !important;
