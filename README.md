@@ -19,7 +19,7 @@ A free Chrome extension that gives YouTube a proper fullscreen experience — wi
 
 ## Installation
 
-You can install the extension directly from the [Chrome Web Store](https://chrome.google.com/webstore/detail/youtube-inline-fullscreen/).
+You can install the extension directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/mfpkbigjnlcgngkdbmnchfnenfmibkig).
 
 > **Note**: After installing, reload any open YouTube tabs for the player button to appear.
 
