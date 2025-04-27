@@ -1,5 +1,9 @@
 (function (chrome) {
 
+    /**
+     * @todo move this to settings.js
+     */
+
     // display survey on uninstall
     chrome.runtime.setUninstallURL("https://goo.gl/forms/HiYiNh8Jq97oUOBg1");
 
@@ -23,7 +27,7 @@
      * @param {number} activeTab 
      */
     function checkInstalled(activeTab) {
-        
+
         chrome.tabs.sendMessage(activeTab, { checkInstalled: true }, function (response) {
             if (chrome.runtime.lastError) {
                 injectScripts(activeTab);
@@ -37,12 +41,12 @@
      * inject content js and css then toggle fullscreen
      */
     function injectScripts(activeTab) {
-        chrome.scripting.insertCSS({ 
-            target: {tabId: activeTab}, 
-            files: ["ytif_style.css"] 
+        chrome.scripting.insertCSS({
+            target: { tabId: activeTab },
+            files: ["ytif_style.css"]
         });
         chrome.scripting.executeScript({
-            target: {tabId: activeTab}, 
+            target: { tabId: activeTab },
             files: ["ytif_content_script.js"]
         });
         setTimeout(() => { toggleFullScreen(activeTab); }, 200);
