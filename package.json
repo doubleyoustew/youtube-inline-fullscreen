@@ -5,11 +5,16 @@
   "main": "",
   "scripts": {
     "sass": "sass app:app",
-    "sass:watch": "sass --watch app:app"
+    "sass:watch": "sass --watch app:app",
+    "build:settings": "npx @tailwindcss/cli -i app/settings/style/src/style.css -o app/settings/style/dist/style.css",
+    "build:settings:watch": "npx @tailwindcss/cli -i app/settings/style/src/style.css -o app/settings/style/dist/style.css --watch"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "sass": "^1.83.0"
+  "dependencies": {
+    "sass": "^1.83.0",
+    "@tailwindcss/cli": "^4.1.4",
+    "daisyui": "^4.12.24",
+    "tailwindcss": "^3.4.17"
   }
 }
