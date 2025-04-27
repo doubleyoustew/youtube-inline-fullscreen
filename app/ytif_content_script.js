@@ -89,6 +89,20 @@
         document.addEventListener('focusout', onFocusOut);
 
         hideMasthead(); // Start hidden by default
+
+        // listen for player stop to show masthead
+        document.querySelector('.video-stream').addEventListener('pause', showMastheadOnPlayerStop);
+    }
+
+    function showMastheadOnPlayerStop() {
+        disableMastheadAutoHide();
+        document.querySelector('.video-stream').removeEventListener('pause', showMastheadOnPlayerStop);
+        document.querySelector('.video-stream').addEventListener('play', handleHideMastheadOnResume);
+    }
+
+    function handleHideMastheadOnResume() {
+        setTimeout(enableMastheadAutoHide, 3000);
+        document.querySelector('.video-stream').removeEventListener('play', handleHideMastheadOnResume);
     }
 
     function disableMastheadAutoHide() {
