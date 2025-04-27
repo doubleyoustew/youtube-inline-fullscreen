@@ -97,8 +97,8 @@
 
         clearTimeout(inactivityTimeout);
 
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseleave', onMouseLeave);
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseleave', onMouseLeave);
         document.removeEventListener('focusin', onFocusIn);
         document.removeEventListener('focusout', onFocusOut);
 
@@ -107,8 +107,7 @@
 
 
     /**
-     * listen to messages from background script
-     * @todo listen to settings.js when it's ready
+     * listen to messages from settings script
      */
     chrome.runtime.onMessage.addListener(function (request, sender, callback) {
         if (request.checkInstalled) {
