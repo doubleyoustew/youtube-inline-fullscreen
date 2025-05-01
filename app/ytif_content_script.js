@@ -9,8 +9,6 @@
     // add fullscreen button
     document.body.addEventListener('yt-navigate-finish', addButton);
     document.body.addEventListener('yt-navigate-finish', exitFullscreenOnNavigation);
-    window.addEventListener('load', addButton);
-    addButton();
     document.body.addEventListener('keydown', shortcutListener);
 
     /**
@@ -29,6 +27,32 @@
             }
         });
     }
+
+    /**
+     * Observe settings
+     */
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'sync' && changes.settings) {
+            const { oldValue = {}, newValue = {} } = changes.settings;
+
+            if (oldValue.showButton !== newValue.showButton) {
+                if (newValue.showButton) {
+                    addButton();
+                } else {
+                    removeButton();
+                }
+            }
+
+            if (oldValue.autoEnable !== newValue.autoEnable) {
+                if (newValue.autoEnable && !document.documentElement.classList.contains("ytif-fullscreen")) {
+                    toggleFullScreen();
+                } else if (!newValue.autoEnable && document.documentElement.classList.contains("ytif-fullscreen")) {
+                    toggleFullScreen();
+                }
+            }
+        }
+    });
+
 
     /**
      * Searchbar / Masthead autohide logic
@@ -135,21 +159,36 @@
      * adds button to youtube player
      */
     function addButton() {
-        if (
-            !document.querySelectorAll(".ytif-button").length
-            && document.querySelectorAll(".ytp-right-controls").length
-        ) {
-            let button = document.createElement("button");
-            button.classList = "ytp-button ytif-button";
-            button.title = "Inline Fullscreen";
+        chrome.storage.sync.get('settings', function (result) {
+            const settings = result.settings || {};
+            const showButton = settings.showButton ?? true;
 
-            let icon = document.createElement("i");
-            icon.classList = "ytif-fullscreen-button";
-            button.appendChild(icon);
+            if (showButton && window.location.pathname.includes('/watch')) {
+                if (
+                    !document.querySelectorAll(".ytif-button").length
+                    && document.querySelectorAll(".ytp-right-controls").length
+                ) {
+                    let button = document.createElement("button");
+                    button.classList = "ytp-button ytif-button";
+                    button.title = "Inline Fullscreen";
 
-            document.querySelector(".ytp-right-controls").prepend(button);
-            button.addEventListener("mouseup", toggleFullScreen);
-        }
+                    let icon = document.createElement("i");
+                    icon.classList = "ytif-fullscreen-button";
+                    button.appendChild(icon);
+
+                    document.querySelector(".ytp-right-controls").prepend(button);
+                    button.addEventListener("mouseup", toggleFullScreen);
+                }
+            }
+        });
+    }
+
+    /**
+     * remove button from player
+     */
+    function removeButton() {
+        const button = document.querySelector('.ytif-button');
+        if (button) button.remove();
     }
 
     /**

@@ -2,7 +2,6 @@
 
   <head>
     <link href="./style/dist/style.css" rel="stylesheet" type="text/css" />
-    <script src="settings.js"></script>
     <meta charset="utf-8">
   </head>
 
@@ -15,6 +14,12 @@
           <label class="label cursor-pointer px-0">
             <span class="label-text">Enable Automatically</span>
             <input id="autoEnable" name="autoEnable" type="checkbox" class="toggle toggle-error" />
+          </label>
+        </div>
+        <div class="form-control">
+          <label class="label cursor-pointer px-0">
+            <span class="label-text">Show Button in Player</span>
+            <input id="showButton" name="showButton" type="checkbox" class="toggle toggle-error" />
           </label>
         </div>
       </form>
@@ -33,6 +38,9 @@
         <a class="btn btn-error text-base-100" id="toggleFullscreen">Toggle Fullscreen</a>
       </div>
     </div>
+
+    <script type="module" src="./settings.js"></script>
+
   </body>
 
 </html>

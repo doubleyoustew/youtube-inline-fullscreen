@@ -1,10 +1,7 @@
+import { DEFAULT_SETTINGS } from './defaults.js';
+
 // When the popup HTML has loaded
 document.addEventListener('DOMContentLoaded', function () {
-
-  // Define the default settings
-  const defaultSettings = {
-    autoEnable: false
-  };
 
   // Load settings when the popup opens
   chrome.storage.sync.get(['settings'], (result) => {
@@ -12,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // If no settings are saved, use the default settings
     if (!settings) {
-      settings = { ...defaultSettings };
+      settings = { ...DEFAULT_SETTINGS };
       // Save the default settings to storage
       chrome.storage.sync.set({ settings: settings });
     }
@@ -33,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Save the settings when the user changes something
-  Object.keys(defaultSettings).forEach((key) => {
+  Object.keys(DEFAULT_SETTINGS).forEach((key) => {
     const element = document.getElementById(key);
 
     if (!element) return;
@@ -42,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const value = element.type === 'checkbox' ? element.checked : element.value;
 
       chrome.storage.sync.get(['settings'], (result) => {
-        let settings = result.settings || { ...defaultSettings };  // Fallback to defaultSettings
+        let settings = result.settings || { ...DEFAULT_SETTINGS };  // Fallback to DEFAULT_SETTINGS
 
         settings[key] = value;  // Update the specific setting
 
