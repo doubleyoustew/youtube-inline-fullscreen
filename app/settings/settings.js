@@ -3,6 +3,9 @@ import { DEFAULT_SETTINGS } from './defaults.js';
 // When the popup HTML has loaded
 document.addEventListener('DOMContentLoaded', function () {
 
+  // check if content script is installed
+  checkInstalled();
+
   // Load settings when the popup opens
   chrome.storage.sync.get(['settings'], (result) => {
     let settings = result.settings;
@@ -59,53 +62,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // handle toggle fullscreen button
   document.getElementById('toggleFullscreen').addEventListener('click', function () {
-
-    // get active tab
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-
-      // if active tab is on youtube
-      if (tabs[0].url && tabs[0].url.indexOf("youtube.com/watch") !== -1) {
-        checkInstalled(tabs[0].id);
-      }
-    });
+    checkInstalled(true);
   });
 
   /**
    * check if content script was loaded (it won't be on first install)
    * @param {number} activeTab 
    */
-  function checkInstalled(activeTab) {
+  function checkInstalled(doToggleFullscreen = false) {
+    console.log(doToggleFullscreen);
+    // get active tab
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 
-    chrome.tabs.sendMessage(activeTab, { checkInstalled: true }, function (response) {
-      if (chrome.runtime.lastError) {
-        injectScripts(activeTab);
-      } else {
-        toggleFullScreen(activeTab);
+      // if active tab is on youtube
+      if (tabs[0].url && tabs[0].url.indexOf("youtube.com/watch") !== -1) {
+        chrome.tabs.sendMessage(tabs[0].id, { checkInstalled: true }, function (response) {
+          if (chrome.runtime.lastError) {
+            chrome.scripting.insertCSS({
+              target: { tabId: tabs[0].id },
+              files: ["ytif_style.css"]
+            });
+            chrome.scripting.executeScript({
+              target: { tabId: tabs[0].id },
+              files: ["ytif_content_script.js"]
+            });
+            if (doToggleFullscreen) {
+              console.log('TOGGLE');
+              setTimeout(() => { chrome.tabs.sendMessage(tabs[0].id, { toggleFullScreen: true }); }, 200);
+            }
+          } else if (doToggleFullscreen) {
+            console.log('TOGGLE 2');
+            chrome.tabs.sendMessage(tabs[0].id, { toggleFullScreen: true });
+          }
+        });
       }
     });
-  }
-
-  /**
-   * inject content js and css then toggle fullscreen
-   */
-  function injectScripts(activeTab) {
-    chrome.scripting.insertCSS({
-      target: { tabId: activeTab },
-      files: ["ytif_style.css"]
-    });
-    chrome.scripting.executeScript({
-      target: { tabId: activeTab },
-      files: ["ytif_content_script.js"]
-    });
-    setTimeout(() => { toggleFullScreen(activeTab); }, 200);
-  }
-
-  /**
-   * sends message to content script to toggle fullscreen
-   * @param {number} activeTab 
-   */
-  function toggleFullScreen(activeTab) {
-    chrome.tabs.sendMessage(activeTab, { toggleFullScreen: true });
   }
 
 });
