@@ -156,7 +156,6 @@
         if (request.checkInstalled) {
             callback({ installed: true });
         } else if (request.toggleFullScreen) {
-            console.log("requested fullscreen");
             toggleFullScreen();
         }
     });
@@ -226,7 +225,7 @@
      * toggles fullscreen -> adds class to document and switches player mode if needed
      */
     function toggleFullScreen(e) {
-        console.log("in toggle FS");
+
         if (!isTransitioning) {
 
             isTransitioning = true;
