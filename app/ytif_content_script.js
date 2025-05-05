@@ -1,4 +1,4 @@
-(function (chrome) {
+(function () {
 
     // holds user preference of theater or normal mode
     let userPreferredView;
@@ -6,36 +6,63 @@
     // isTransitioning: if true, we're in the process of entering or leaving fullscreen
     let isTransitioning = false;
 
-    // add fullscreen button
-    document.body.addEventListener('yt-navigate-finish', addButton);
-    addButton();
+    // yt-navigate-finish fires on page load and also when navigating without a page reload
+    // note: fires a little too early so that some functionality is not available yet.
+    document.body.addEventListener('yt-navigate-finish', () => {
 
-    // exit fullscreen if navigating away from a video
-    document.body.addEventListener('yt-navigate-finish', exitFullscreenOnNavigation);
+        // add fullscreen button
+        addButton();
 
-    // listen to shortcuts
-    document.body.addEventListener('keydown', shortcutListener);
+        // exit fullscreen if navigating away from a video
+        exitFullscreenOnNavigation();
 
-    /**
-     * Automatically enable fullscreen mode
-     */
-    document.body.addEventListener('yt-navigate-finish', autoEnableFullscreen);
-    function autoEnableFullscreen() {
+    });
+
+    // yt-player-updated triggers when the player is ready.
+    // mostly needed because the theater mode toggle is not ready before so things like autoEnable need to go here.
+    document.body.addEventListener('yt-player-updated', () => {
+
+        // Automatically enable fullscreen mode
         chrome.storage.sync.get('settings', function (result) {
             const settings = result.settings || {};  // Default to an empty object if not set
             const autoEnable = settings.autoEnable || false;  // Default to false if autoEnable is not set
 
-            if (autoEnable && window.location.pathname.includes('/watch')) {
-                if (!document.documentElement.classList.contains("ytif-fullscreen")) {
-                    toggleFullScreen();
+            if (window.location.pathname.includes('/watch')) {
+
+                // handle auto enable
+                if (autoEnable) {
+                    if (!isFullscreen()) {
+                        toggleFullScreen();
+                    }
                 }
+
+                // if auto enable is off, check if we need to restore the theater mode toggle
+                // otherwise store preference in local variable
+                chrome.storage.sync.get('userPreferredView', function (result) {
+                    if (!autoEnable) {
+                        if (!isFullscreen()) {
+                            if (result.userPreferredView && getPlayerMode() != result.userPreferredView) {
+                                toggleTheaterView();
+                            }
+                            chrome.storage.sync.set({ userPreferredView: null });
+                        }
+                    } else {
+                        if (result.userPreferredView) {
+                            userPreferredView = result.userPreferredView;
+                        }
+                    }
+                });
             }
         });
-    }
+    });
 
-    /**
-     * Observe settings
-     */
+    // add button after fresh install and first click of the extension icon
+    addButton();
+
+    // listen to keyboard shortcuts
+    document.body.addEventListener('keydown', shortcutListener);
+
+    // observe settings object so that chainging options such as "Show Player Button" is applied immediately
     chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName === 'sync' && changes.settings) {
             const { oldValue = {}, newValue = {} } = changes.settings;
@@ -49,15 +76,14 @@
             }
 
             if (oldValue.autoEnable !== newValue.autoEnable) {
-                if (newValue.autoEnable && !document.documentElement.classList.contains("ytif-fullscreen")) {
+                if (newValue.autoEnable && !isFullscreen()) {
                     toggleFullScreen();
-                } else if (!newValue.autoEnable && document.documentElement.classList.contains("ytif-fullscreen")) {
+                } else if (!newValue.autoEnable && isFullscreen()) {
                     toggleFullScreen();
                 }
             }
         }
     });
-
 
     /**
      * Searchbar / Masthead autohide logic
@@ -148,7 +174,6 @@
         showMasthead(); // Keep masthead always visible when disabled
     }
 
-
     /**
      * listen to messages from settings script
      */
@@ -197,7 +222,7 @@
     }
 
     /**
-     * listen to keyboard shortcut (w)
+     * listen to keyboard shortcuts
      */
     function shortcutListener(event) {
         if (
@@ -211,7 +236,7 @@
                     break;
                 case 't':
                     // disable theater mode shortcut when fullscreen is active
-                    if (document.documentElement.classList.contains("ytif-fullscreen")) {
+                    if (isFullscreen()) {
                         event.preventDefault();
                         event.stopPropagation();
                         return false;
@@ -234,11 +259,20 @@
             document.documentElement.classList.toggle("ytif-fullscreen");
 
             // entering fullscreen
-            if (document.documentElement.classList.contains("ytif-fullscreen")) {
+            if (isFullscreen()) {
 
                 // theater mode needs to be on, 
                 // but we'll restore the users preference when leaving fullscreen
                 userPreferredView = getPlayerMode();
+
+                // just in case another tab is being opened, save the theater mode preference to retrieve later
+                chrome.storage.sync.get('userPreferredView', function (result) {
+                    if (!result.userPreferredView) {
+                        chrome.storage.sync.set({ userPreferredView: userPreferredView });
+                    } else {
+                        userPreferredView = result.userPreferredView;
+                    }
+                });
 
                 if (getPlayerMode() === "default") {
                     toggleTheaterView();
@@ -253,9 +287,15 @@
                 // stop hiding masthead
                 disableMastheadAutoHide();
 
-                // if we just left fullscreen and user doesn't use theater mode, turn it off
-                if (getPlayerMode() != userPreferredView) {
-                    toggleTheaterView();
+                // don't toggle theater mode when not on /watch page
+                if (window.location.pathname.includes('/watch')) {
+                    // if we just left fullscreen and user doesn't use theater mode, turn it off
+                    if (getPlayerMode() != userPreferredView) {
+                        toggleTheaterView();
+                    }
+
+                    // since we exited fs mode, clear the preferred view form storage
+                    chrome.storage.sync.set({ userPreferredView: null });
                 }
             }
 
@@ -272,7 +312,7 @@
     }
 
     /**
-     * toggles theater mode. triggers click event on the theater button
+     * toggles theater mode by triggering a click event on the theater button
      */
     function toggleTheaterView() {
         document.querySelector(".ytp-size-button.ytp-button").dispatchEvent(new Event("click"));
@@ -291,12 +331,20 @@
     }
 
     /**
+     * checks if fullsreen mode is active
+     * @returns {boolean}
+     */
+    function isFullscreen() {
+        return document.documentElement.classList.contains("ytif-fullscreen");
+    }
+
+    /**
      * exits fullscreen if navigating away from videoplayer
      */
     function exitFullscreenOnNavigation() {
         if (
             !window.location.pathname.includes('/watch')
-            && document.documentElement.classList.contains("ytif-fullscreen")
+            && isFullscreen()
         ) {
             toggleFullScreen();
         }
