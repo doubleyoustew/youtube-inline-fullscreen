@@ -7,7 +7,7 @@
     let isTransitioning = false;
 
     // yt-navigate-finish fires on page load and also when navigating without a page reload
-    // note: fires a little too early so that some functionality is not available yet.
+    // note: fires a little too ear23ly so that some functionality is not available yet.
     document.body.addEventListener('yt-navigate-finish', () => {
 
         // add fullscreen button
@@ -232,6 +232,10 @@
         ) {
             switch (event.key) {
                 case 'w':
+                    toggleFullScreen();
+                    break;
+                case 'd':
+                    // so that using 'd' doesn't toggle YT deafult caption settings
                     toggleFullScreen();
                     break;
                 case 't':
