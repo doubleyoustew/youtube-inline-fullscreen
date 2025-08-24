@@ -234,6 +234,10 @@
                 case 'w':
                     toggleFullScreen();
                     break;
+                case 'g':
+                    // so that using 'w' doesn't toggle YT deafult caption settings
+                    toggleFullScreen();
+                    break;
                 case 't':
                     // disable theater mode shortcut when fullscreen is active
                     if (isFullscreen()) {
