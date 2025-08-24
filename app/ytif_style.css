@@ -1,14 +1,17 @@
 .ytif-fullscreen {
   scrollbar-width: none;
 }
+
 .ytif-fullscreen #page-manager {
   margin-top: 0 !important;
 }
+
 .ytif-fullscreen #full-bleed-container {
   height: 100vh !important;
   max-height: 100vh !important;
   min-height: 0 !important;
 }
+
 .ytif-fullscreen .ytp-size-button {
   display: none !important;
 }
@@ -22,8 +25,9 @@
   position: relative;
   overflow: visible !important;
 }
+
 .ytif-button:after {
-  content: "Windowed Fullscreen (w)";
+  content: "Windowed Fullscreen (d)";
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -41,13 +45,14 @@
   opacity: 0;
   margin: 0;
 }
+
 .ytif-button:hover:after {
   display: block;
   opacity: 1;
 }
 
 .ytif-fullscreen .ytif-button:after {
-  content: "Exit Windowed Fullscreen (w)";
+  content: "Exit Windowed Fullscreen (d)";
 }
 
 .ytif-fullscreen-button {

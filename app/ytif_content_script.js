@@ -228,14 +228,10 @@
         if (
             event.target.tagName != 'INPUT'
             && event.target.tagName != 'TEXTAREA'
-            && event.target.contentEditable != 'true'
+            && !event.target.isContentEditable
         ) {
             switch (event.key) {
-                case 'w':
-                    toggleFullScreen();
-                    break;
-                case 'g':
-                    // so that using 'w' doesn't toggle YT deafult caption settings
+                case 'd':
                     toggleFullScreen();
                     break;
                 case 't':
@@ -243,7 +239,6 @@
                     if (isFullscreen()) {
                         event.preventDefault();
                         event.stopPropagation();
-                        return false;
                     }
                     break;
             }

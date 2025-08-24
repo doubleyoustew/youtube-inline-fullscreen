@@ -7,15 +7,14 @@ A free Chrome extension that gives YouTube a proper fullscreen experience — wi
 
 - 🖥️ **Inline Fullscreen**: Fill your entire browser window with the video player, no borders or sidebars.
 - 🎯 **Responsive Layout**: Comments, suggestions, and other UI elements stay accessible.
-- ⚡ **Fast Toggle**: Use the extension icon, the custom button inside the YouTube player, or a keyboard shortcut.
-- 🔍 **Search in Fullscreen**: Press `s` to toggle the search bar without leaving fullscreen mode.
+- ⚡ **Fast Toggle**: Use the custom button inside the YouTube player, or a keyboard shortcut.
+- 🛠️ **Customizable Settings**: Click the extension icon to open a menu where you can adjust the behavior to your liking.
 
 ## Keyboard Shortcuts
 
 | Shortcut | Action                          |
 |----------|---------------------------------|
-| `w`      | Toggle inline fullscreen mode   |
-| `s`      | Show/hide YouTube search bar    |
+| `d`      | Toggle inline fullscreen mode   |
 
 ## Installation
 
