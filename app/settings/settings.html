@@ -22,9 +22,33 @@
             <input id="showButton" name="showButton" type="checkbox" class="toggle toggle-error" />
           </label>
         </div>
+        <div class="divider">Shortcuts</div>
+
+        <div class="ytif-swap">
+          <div class="ytif-swap-off">
+            <div class="flex justify-between items-center">
+              <p class="text-sm py-1"><kbd class="kbd kbd-s" id="displayFullscreenShortcut">d</kbd> - Toggle Fullscreen
+              </p>
+              <p class="text-sm py-1"><a class="link link-error" id="editFullscreenShortcut">Edit</a></p>
+            </div>
+          </div>
+          <div class="ytif-swap-on">
+            <div class="form-control">
+              <label class="label cursor-pointer px-0 flex flex-col items-start">
+                <span class="label-text">Fullscreen shortcut</span>
+                <input id="fullscreenShortcut" type="text" placeholder="Type here"
+                  class="input input-error input-md mt-1 w-full" />
+              </label>
+              <div class="flex justify-end items-center gap-x-2">
+                <a class="link link-error text-sm" id="cancelShortcut">Reset</a>
+                <a class="link link-error text-sm" id="saveShortcut">Ok</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </form>
-      <div class="divider">Shortcuts</div>
-      <p class="text-sm py-1"><kbd class="kbd kbd-s">d</kbd> - Toggle Fullscreen</p>
+
       <div class="divider">Links</div>
       <a class="link link-error text-sm open-tab"
         href="https://github.com/doubleyoustew/youtube-inline-fullscreen">GitHub</a> - Report an issue or browse the

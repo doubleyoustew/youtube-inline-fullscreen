@@ -6,6 +6,14 @@
     // isTransitioning: if true, we're in the process of entering or leaving fullscreen
     let isTransitioning = false;
 
+    // holds the settings object
+    let globalSettings;
+
+    // get settings
+    chrome.storage.sync.get('settings', function (result) {
+        globalSettings = result.settings;
+    });
+
     // yt-navigate-finish fires on page load and also when navigating without a page reload
     // note: fires a little too early so that some functionality is not available yet.
     document.body.addEventListener('yt-navigate-finish', () => {
@@ -64,8 +72,12 @@
 
     // observe settings object so that chainging options such as "Show Player Button" is applied immediately
     chrome.storage.onChanged.addListener((changes, areaName) => {
+
         if (areaName === 'sync' && changes.settings) {
             const { oldValue = {}, newValue = {} } = changes.settings;
+
+            // update global settings object
+            globalSettings = { ...globalSettings, ...changes.settings.newValue };
 
             if (oldValue.showButton !== newValue.showButton) {
                 if (newValue.showButton) {
@@ -229,9 +241,13 @@
             event.target.tagName != 'INPUT'
             && event.target.tagName != 'TEXTAREA'
             && !event.target.isContentEditable
+            && !event.ctrlKey
+            && !event.metaKey
+            && !event.altKey
+            && !event.shiftKey
         ) {
             switch (event.key) {
-                case 'd':
+                case globalSettings.fullscreenShortcut:
                     toggleFullScreen();
                     break;
                 case 't':

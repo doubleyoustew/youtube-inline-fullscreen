@@ -10,12 +10,11 @@ document.addEventListener('DOMContentLoaded', function () {
   chrome.storage.sync.get(['settings'], (result) => {
     let settings = result.settings;
 
-    // If no settings are saved, use the default settings
-    if (!settings) {
-      settings = { ...DEFAULT_SETTINGS };
-      // Save the default settings to storage
-      chrome.storage.sync.set({ settings: settings });
-    }
+    // Merge defaults with saved settings
+    settings = { ...DEFAULT_SETTINGS, ...settings };
+
+    // Save back merged settings in case there were new defaults
+    chrome.storage.sync.set({ settings: settings });
 
     // Loop through all settings and write the values to the input fields
     for (const key in settings) {
@@ -30,6 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {
         element.value = settings[key];  // Set select field value
       }
     }
+
+    // update keyboard shortcut display
+    console.log(settings.fullscreenShortcut);
+    document.getElementById('displayFullscreenShortcut').innerHTML = settings.fullscreenShortcut;
   });
 
   // Save the settings when the user changes something
@@ -39,8 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!element) return;
 
     element.addEventListener('change', (event) => {
+      console.log("change event");
       const value = element.type === 'checkbox' ? element.checked : element.value;
-
       chrome.storage.sync.get(['settings'], (result) => {
         let settings = result.settings || { ...DEFAULT_SETTINGS };  // Fallback to DEFAULT_SETTINGS
 
@@ -48,8 +51,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Save the updated settings object back to storage
         chrome.storage.sync.set({ settings: settings });
+        // update keyboard shortcut display
+        document.getElementById('displayFullscreenShortcut').innerHTML = settings.fullscreenShortcut;
       });
     });
+  });
+
+  // handle edit shortcut clicked
+  document.getElementById('editFullscreenShortcut').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector('.ytif-swap').classList.add('ytif-active');
+    document.getElementById('fullscreenShortcut').focus();
+  });
+
+  // handle shortcut reset to default
+  document.getElementById('cancelShortcut').addEventListener('click', function (e) {
+    e.preventDefault();
+    const input = document.getElementById('fullscreenShortcut');
+    input.value = DEFAULT_SETTINGS.fullscreenShortcut;
+    input.dispatchEvent(new Event("change"));
+    document.querySelector('.ytif-swap').classList.remove('ytif-active');
+  });
+
+  // handle shortcut edit dismiss
+  document.getElementById('saveShortcut').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector('.ytif-swap').classList.remove('ytif-active');
+  });
+
+  // handle shortcut edit input
+  document.getElementById('fullscreenShortcut').addEventListener('keydown', function (e) {
+    if (!e.ctrlKey && !e.metaKey) {
+      e.preventDefault();
+      if (/^[a-z]$/.test(e.key)) {
+        this.value = e.key;
+        this.dispatchEvent(new Event("change"));
+      }
+    }
   });
 
   // Open links in new tab
@@ -70,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
    * @param {number} activeTab 
    */
   function checkInstalled(doToggleFullscreen = false) {
-    console.log(doToggleFullscreen);
+
     // get active tab
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 
