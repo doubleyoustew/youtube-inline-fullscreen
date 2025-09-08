@@ -94,8 +94,21 @@
                     toggleFullScreen();
                 }
             }
+
+            // update player button tooltip on shortcut change
+            updatePlayerButtonTooltip();
         }
     });
+
+    function updatePlayerButtonTooltip() {
+        //"Windowed Fullscreen (w)"
+        //"Exit Windowed Fullscreen (w)";
+        const btn = document.querySelector(".ytif-button");
+        if (btn) {
+            btn.setAttribute("data-tooltip", "Windowed Fullscreen (" + globalSettings.fullscreenShortcut + ")");
+            btn.setAttribute("data-tooltip-active", "Exit Windowed Fullscreen (" + globalSettings.fullscreenShortcut + ")");
+        }
+    }
 
     /**
      * Searchbar / Masthead autohide logic
@@ -213,6 +226,9 @@
                     let button = document.createElement("button");
                     button.classList = "ytp-button ytif-button";
                     button.title = "Inline Fullscreen";
+
+                    button.setAttribute("data-tooltip", "Windowed Fullscreen (" + globalSettings.fullscreenShortcut + ")");
+                    button.setAttribute("data-tooltip-active", "Exit Windowed Fullscreen (" + globalSettings.fullscreenShortcut + ")");
 
                     let icon = document.createElement("i");
                     icon.classList = "ytif-fullscreen-button";
