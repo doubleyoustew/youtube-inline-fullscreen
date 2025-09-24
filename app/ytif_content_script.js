@@ -18,9 +18,6 @@
     // note: fires a little too early so that some functionality is not available yet.
     document.body.addEventListener('yt-navigate-finish', () => {
 
-        // add fullscreen button
-        addButton();
-
         // exit fullscreen if navigating away from a video
         exitFullscreenOnNavigation();
 
@@ -28,7 +25,10 @@
 
     // yt-player-updated triggers when the player is ready.
     // mostly needed because the theater mode toggle is not ready before so things like autoEnable need to go here.
-    document.body.addEventListener('yt-player-updated', () => {
+    document.addEventListener('yt-service-request-completed', () => {
+
+        // add fullscreen button
+        addButton();
 
         // add fullscreen button when player is ready
         addButton();
