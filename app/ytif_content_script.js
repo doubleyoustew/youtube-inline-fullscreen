@@ -21,16 +21,16 @@
         // exit fullscreen if navigating away from a video
         exitFullscreenOnNavigation();
 
+        // add fullscreen after navigation
+        addButton();
+
     });
 
     // yt-player-updated triggers when the player is ready.
     // mostly needed because the theater mode toggle is not ready before so things like autoEnable need to go here.
-    document.addEventListener('yt-service-request-completed', () => {
+    document.addEventListener('yt-player-updated', () => {
 
         // add fullscreen button
-        addButton();
-
-        // add fullscreen button when player is ready
         addButton();
 
         // Automatically enable fullscreen mode
