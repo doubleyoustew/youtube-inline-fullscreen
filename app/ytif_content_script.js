@@ -159,12 +159,27 @@
         return document.querySelector(".video-stream")?.paused ?? null;
     }
 
+    function arePlayerControlsVisible() {
+        const playerControls = document.querySelector('.ytp-chrome-bottom');
+        if (!playerControls) return false;
+        
+        // Check if controls are visible by checking opacity or display
+        const styles = window.getComputedStyle(playerControls);
+        return styles.opacity !== '0' && styles.display !== 'none';
+    }
+
     function handleMastheadPause() {
-        showMasthead();
+        // Only show masthead if player controls are also visible
+        if (arePlayerControlsVisible()) {
+            showMasthead();
+        }
     }
 
     function handleMastheadPlay() {
-        startInactivityTimer();
+        // Only start the inactivity timer if player controls are visible
+        if (arePlayerControlsVisible()) {
+            startInactivityTimer();
+        }
     }
 
     function showMasthead() {
