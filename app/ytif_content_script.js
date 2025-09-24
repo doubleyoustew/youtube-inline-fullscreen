@@ -30,6 +30,9 @@
     // mostly needed because the theater mode toggle is not ready before so things like autoEnable need to go here.
     document.body.addEventListener('yt-player-updated', () => {
 
+        // add fullscreen button when player is ready
+        addButton();
+
         // Automatically enable fullscreen mode
         chrome.storage.sync.get('settings', function (result) {
             const settings = result.settings || {};  // Default to an empty object if not set
