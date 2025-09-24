@@ -133,11 +133,19 @@
 
     function startInactivityTimer() {
         clearTimeout(inactivityTimeout);
-        inactivityTimeout = setTimeout(hideMasthead, 3000);
+        inactivityTimeout = setTimeout(() => {
+            const playerControls = document.querySelector('.ytp-chrome-controls') || document.querySelector('.ytp-gradient-bottom');
+            if (!playerControls || playerControls.classList.contains('ytp-autohide')) {
+                hideMasthead();
+            }
+        }, 3000);
     }
 
     function onMouseMove() {
-        showMasthead();
+        const playerControls = document.querySelector('.ytp-chrome-controls') || document.querySelector('.ytp-gradient-bottom');
+        if (!playerControls || !playerControls.classList.contains('ytp-autohide')) {
+            showMasthead();
+        }
         startInactivityTimer();
     }
 
@@ -175,7 +183,7 @@
     }
 
     function showMastheadOnPlayerStop() {
-        disableMastheadAutoHide();
+        // Don't automatically show masthead - let it sync with player controls visibility
         document.querySelector('.video-stream').removeEventListener('pause', showMastheadOnPlayerStop);
         document.querySelector('.video-stream').addEventListener('play', handleHideMastheadOnResume);
     }
