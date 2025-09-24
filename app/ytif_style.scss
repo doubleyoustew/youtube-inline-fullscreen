@@ -16,11 +16,14 @@
 		display: none !important;
 	}
 
-}
+	#masthead {
+		opacity: 1;
+		transition: opacity 0.3s ease;
 
-.ytif-masthead-hidden {
-	#masthead-container {
-		display: none;
+		&.ytif-masthead-hidden {
+			opacity: 0;
+			pointer-events: none;
+		}
 	}
 }
 
@@ -30,7 +33,7 @@
 	overflow: visible !important;
 
 	&:after {
-		content: 'Windowed Fullscreen (w)';
+		content: attr(data-tooltip);
 		position: absolute;
 		left: 50%;
 		transform: translateX(-50%);
@@ -56,7 +59,7 @@
 }
 
 .ytif-fullscreen .ytif-button:after {
-	content: 'Exit Windowed Fullscreen (w)';
+	content: attr(data-tooltip-active);
 }
 
 .ytif-fullscreen-button {

@@ -117,20 +117,69 @@
      * Searchbar / Masthead autohide logic
      */
     let inactivityTimeout;
-    let mastheadBehaviorEnabled = false;
+    let playerObject;
 
     const masthead = document.getElementById('masthead');
 
+    function enableMastheadAutoHide() {
+
+        if (!playerObject) {
+            playerObject = document.querySelector('.video-stream');
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseleave', onMouseLeave);
+        document.addEventListener('focusin', onFocusIn);
+        document.addEventListener('focusout', onFocusOut);
+
+        if (!isPlayerPaused()) {
+            startInactivityTimer();
+        }
+
+        playerObject.addEventListener('play', handleMastheadPlay);
+        playerObject.addEventListener('pause', handleMastheadPause);
+    }
+
+    function disableMastheadAutoHide() {
+
+        clearTimeout(inactivityTimeout);
+
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseleave', onMouseLeave);
+        document.removeEventListener('focusin', onFocusIn);
+        document.removeEventListener('focusout', onFocusOut);
+        playerObject.removeEventListener('play', handleMastheadPlay);
+        playerObject.removeEventListener('pause', handleMastheadPause);
+        showMasthead();
+
+        playerObject = null;
+    }
+
+    function isPlayerPaused() {
+        return document.querySelector(".video-stream")?.paused ?? null;
+    }
+
+    function handleMastheadPause() {
+        showMasthead();
+    }
+
+    function handleMastheadPlay() {
+        startInactivityTimer();
+    }
+
     function showMasthead() {
-        if (masthead) masthead.style.display = 'block';
+        if (masthead) masthead.classList.remove('ytif-masthead-hidden');
     }
 
     function hideMasthead() {
-        if (document.activeElement?.getAttribute('name') !== 'search_query') {
-            if (masthead) masthead.style.display = 'none';
-        } else {
-            // Input is still focused — keep showing and restart inactivity timer
+
+        // check if searchbar is in focus, otherwise hide masthead
+        if (isMastheadFocused()) {
             startInactivityTimer();
+        } else {
+            if (!isPlayerPaused()) {
+                if (masthead) masthead.classList.add('ytif-masthead-hidden');
+            }
         }
     }
 
@@ -145,14 +194,14 @@
     }
 
     function onMouseLeave() {
-        if (document.activeElement?.getAttribute('name') === 'search_query') {
+        if (isMastheadFocused()) {
             document.activeElement.blur();
         }
         hideMasthead();
     }
 
     function onFocusIn() {
-        if (document.activeElement?.getAttribute('name') === 'search_query') {
+        if (isMastheadFocused()) {
             clearTimeout(inactivityTimeout);
             showMasthead();
         }
@@ -162,44 +211,8 @@
         startInactivityTimer();
     }
 
-    function enableMastheadAutoHide() {
-        if (mastheadBehaviorEnabled) return; // already enabled
-        mastheadBehaviorEnabled = true;
-
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseleave', onMouseLeave);
-        document.addEventListener('focusin', onFocusIn);
-        document.addEventListener('focusout', onFocusOut);
-
-        hideMasthead(); // Start hidden by default
-
-        // listen for player stop to show masthead
-        document.querySelector('.video-stream').addEventListener('pause', showMastheadOnPlayerStop);
-    }
-
-    function showMastheadOnPlayerStop() {
-        disableMastheadAutoHide();
-        document.querySelector('.video-stream').removeEventListener('pause', showMastheadOnPlayerStop);
-        document.querySelector('.video-stream').addEventListener('play', handleHideMastheadOnResume);
-    }
-
-    function handleHideMastheadOnResume() {
-        setTimeout(enableMastheadAutoHide, 3000);
-        document.querySelector('.video-stream').removeEventListener('play', handleHideMastheadOnResume);
-    }
-
-    function disableMastheadAutoHide() {
-        if (!mastheadBehaviorEnabled) return; // already disabled
-        mastheadBehaviorEnabled = false;
-
-        clearTimeout(inactivityTimeout);
-
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseleave', onMouseLeave);
-        document.removeEventListener('focusin', onFocusIn);
-        document.removeEventListener('focusout', onFocusOut);
-
-        showMasthead(); // Keep masthead always visible when disabled
+    function isMastheadFocused() {
+        return document.activeElement?.getAttribute('name') === 'search_query';
     }
 
     /**
