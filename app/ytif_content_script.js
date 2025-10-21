@@ -160,10 +160,21 @@
     }
 
     function handleMastheadPause() {
-        showMasthead();
+        console.log("pause trigger");
+        if (isSeekbarVisible()) {
+            showMasthead();
+            startInactivityTimer();
+        }
+    }
+
+    function isSeekbarVisible() {
+        return window.getComputedStyle(document.querySelector('.ytp-chrome-bottom')).opacity > 0;
     }
 
     function handleMastheadPlay() {
+        if (isSeekbarVisible()) {
+            showMasthead();
+        }
         startInactivityTimer();
     }
 
@@ -177,8 +188,8 @@
         if (isMastheadFocused()) {
             startInactivityTimer();
         } else {
-            if (!isPlayerPaused()) {
-                if (masthead) masthead.classList.add('ytif-masthead-hidden');
+            if (masthead) {
+                masthead.classList.add('ytif-masthead-hidden');
             }
         }
     }
