@@ -297,7 +297,14 @@
                     // disable theater mode shortcut when fullscreen is active
                     if (isFullscreen()) {
                         event.preventDefault();
-                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                    }
+                    break;
+                case 'Escape':
+                    if (isFullscreen()) {
+                        event.preventDefault();
+                        event.stopImmediatePropagation();
+                        toggleFullScreen();
                     }
                     break;
             }
