@@ -294,10 +294,11 @@
                     toggleFullScreen();
                     break;
                 case 't':
-                    // disable theater mode shortcut when fullscreen is active
+                    // exit fullscreen when pressed during inline fullscreen mode
                     if (isFullscreen()) {
                         event.preventDefault();
                         event.stopImmediatePropagation();
+                        toggleFullScreen();
                     }
                     break;
                 case 'Escape':
