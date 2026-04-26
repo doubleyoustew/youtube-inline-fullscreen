@@ -43,7 +43,18 @@
                 // handle auto enable
                 if (autoEnable) {
                     if (!isFullscreen()) {
-                        toggleFullScreen();
+                        // Wait for layout containers to be ready to prevent race condition
+                        // where .ytif-fullscreen CSS is applied before YouTube's layout elements exist
+                        if (document.querySelector('#full-bleed-container') || document.querySelector('ytd-watch-flexy')) {
+                            toggleFullScreen();
+                        } else {
+                            // Retry after a short delay to allow YouTube's layout to render
+                            setTimeout(() => {
+                                if (!isFullscreen() && document.querySelector('#full-bleed-container')) {
+                                    toggleFullScreen();
+                                }
+                            }, 100);
+                        }
                     }
                 }
 
@@ -389,11 +400,11 @@
      * @return {string}
      */
     function getPlayerMode() {
-        if (document.querySelector('ytd-watch-flexy').attributes.theater) {
+        const watchFlexy = document.querySelector('ytd-watch-flexy');
+        if (watchFlexy && watchFlexy.attributes && watchFlexy.attributes.theater) {
             return "theater";
-        } else {
-            return "default";
         }
+        return "default";
     }
 
     /**
