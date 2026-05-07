@@ -309,6 +309,10 @@
                     if (isFullscreen()) {
                         event.preventDefault();
                         event.stopImmediatePropagation();
+
+                        userPreferredView = userPreferredView === 'theater' ? 'default' : 'theater';
+                        chrome.storage.sync.set({ userPreferredView: userPreferredView });
+
                         toggleFullScreen();
                     }
                     break;
