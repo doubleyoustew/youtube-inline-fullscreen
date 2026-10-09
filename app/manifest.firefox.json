@@ -14,26 +14,15 @@
     "scripts": ["background.js"]
   },
 
-  "permissions": [
-    "storage",
-    "scripting"
-  ],
+  "permissions": ["storage", "scripting"],
 
-  "host_permissions": [
-    "*://*.youtube.com/*"
-  ],
+  "host_permissions": ["*://*.youtube.com/*"],
 
   "content_scripts": [
     {
-      "matches": [
-        "*://*.youtube.com/*"
-      ],
-      "css": [
-        "ytif_style.css"
-      ],
-      "js": [
-        "ytif_content_script.js"
-      ]
+      "matches": ["*://*.youtube.com/*"],
+      "css": ["ytif_style.css"],
+      "js": ["ytif_content_script.js"]
     }
   ],
 

@@ -3,11 +3,11 @@ const browserAPI = globalThis.chrome ?? globalThis.browser;
 const DEFAULT_SETTINGS = {
   autoEnable: false,
   showButton: true,
-  fullscreenShortcut: "d"
+  fullscreenShortcut: 'd',
 };
 
 // save default settings
-browserAPI.storage.sync.get(["settings"], (result) => {
+browserAPI.storage.sync.get(['settings'], (result) => {
   let settings = result.settings;
 
   if (!settings) {
@@ -17,4 +17,4 @@ browserAPI.storage.sync.get(["settings"], (result) => {
 });
 
 // display survey on uninstall
-browserAPI.runtime.setUninstallURL("https://goo.gl/forms/HiYiNh8Jq97oUOBg1");
+browserAPI.runtime.setUninstallURL('https://goo.gl/forms/HiYiNh8Jq97oUOBg1');

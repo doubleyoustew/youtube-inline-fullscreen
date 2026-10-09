@@ -12,9 +12,9 @@ A free Chrome extension that gives YouTube a proper fullscreen experience — wi
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action                          |
-|----------|---------------------------------|
-| `d`      | Toggle inline fullscreen mode   |
+| Shortcut | Action                        |
+| -------- | ----------------------------- |
+| `d`      | Toggle inline fullscreen mode |
 
 ## Installation
 
@@ -26,19 +26,19 @@ You can install the extension directly from the [Chrome Web Store](https://chrom
 
 To build or modify the extension locally:
 
-1. Clone the repo  
+1. Clone the repo
 2. Install dependencies:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 3. Compile styles:
 
-    ```bash
-    npm run sass        # Compile once
-    npm run sass:watch  # Watch for changes
-    ```
+   ```bash
+   npm run sass        # Compile once
+   npm run sass:watch  # Watch for changes
+   ```
 
 Then load the extension into Chrome via the [Extensions page](chrome://extensions), enable Developer Mode, and click **Load unpacked**.
 
