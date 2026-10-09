@@ -9,7 +9,8 @@
     "build:settings": "npx @tailwindcss/cli -i app/settings/style/src/style.css -o app/settings/style/dist/style.css",
     "build:settings:watch": "npx @tailwindcss/cli -i app/settings/style/src/style.css -o app/settings/style/dist/style.css --watch",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "node scripts/check-defaults.mjs"
   },
   "author": "",
   "license": "ISC",
