@@ -1,4 +1,4 @@
-(function () {
+(function (browserAPI) {
 
     // holds user preference of theater or normal mode
     let userPreferredView;
@@ -10,7 +10,7 @@
     let globalSettings;
 
     // get settings
-    chrome.storage.sync.get('settings', function (result) {
+    browserAPI.storage.sync.get('settings', function (result) {
         globalSettings = result.settings;
     });
 
@@ -34,7 +34,7 @@
         addButton();
 
         // Automatically enable fullscreen mode
-        chrome.storage.sync.get('settings', function (result) {
+        browserAPI.storage.sync.get('settings', function (result) {
             const settings = result.settings || {};  // Default to an empty object if not set
             const autoEnable = settings.autoEnable || false;  // Default to false if autoEnable is not set
 
@@ -60,13 +60,13 @@
 
                 // if auto enable is off, check if we need to restore the theater mode toggle
                 // otherwise store preference in local variable
-                chrome.storage.sync.get('userPreferredView', function (result) {
+                browserAPI.storage.sync.get('userPreferredView', function (result) {
                     if (!autoEnable) {
                         if (!isFullscreen()) {
                             if (result.userPreferredView && getPlayerMode() != result.userPreferredView) {
                                 toggleTheaterView();
                             }
-                            chrome.storage.sync.set({ userPreferredView: null });
+                            browserAPI.storage.sync.set({ userPreferredView: null });
                         }
                     } else {
                         if (result.userPreferredView) {
@@ -85,7 +85,7 @@
     document.body.addEventListener('keydown', shortcutListener);
 
     // observe settings object so that chainging options such as "Show Player Button" is applied immediately
-    chrome.storage.onChanged.addListener((changes, areaName) => {
+    browserAPI.storage.onChanged.addListener((changes, areaName) => {
 
         if (areaName === 'sync' && changes.settings) {
             const { oldValue = {}, newValue = {} } = changes.settings;
@@ -171,7 +171,6 @@
     }
 
     function handleMastheadPause() {
-        console.log("pause trigger");
         if (isSeekbarVisible()) {
             showMasthead();
             startInactivityTimer();
@@ -240,7 +239,7 @@
     /**
      * listen to messages from settings script
      */
-    chrome.runtime.onMessage.addListener(function (request, sender, callback) {
+    browserAPI.runtime.onMessage.addListener(function (request, sender, callback) {
         if (request.checkInstalled) {
             callback({ installed: true });
         } else if (request.toggleFullScreen) {
@@ -252,7 +251,7 @@
      * adds button to youtube player
      */
     function addButton() {
-        chrome.storage.sync.get('settings', function (result) {
+        browserAPI.storage.sync.get('settings', function (result) {
             const settings = result.settings || {};
             const showButton = settings.showButton ?? true;
 
@@ -311,7 +310,7 @@
                         event.stopImmediatePropagation();
 
                         userPreferredView = userPreferredView === 'theater' ? 'default' : 'theater';
-                        chrome.storage.sync.set({ userPreferredView: userPreferredView });
+                        browserAPI.storage.sync.set({ userPreferredView: userPreferredView });
 
                         toggleFullScreen();
                     }
@@ -347,9 +346,9 @@
                 userPreferredView = getPlayerMode();
 
                 // just in case another tab is being opened, save the theater mode preference to retrieve later
-                chrome.storage.sync.get('userPreferredView', function (result) {
+                browserAPI.storage.sync.get('userPreferredView', function (result) {
                     if (!result.userPreferredView) {
-                        chrome.storage.sync.set({ userPreferredView: userPreferredView });
+                        browserAPI.storage.sync.set({ userPreferredView: userPreferredView });
                     } else {
                         userPreferredView = result.userPreferredView;
                     }
@@ -376,7 +375,7 @@
                     }
 
                     // since we exited fs mode, clear the preferred view form storage
-                    chrome.storage.sync.set({ userPreferredView: null });
+                    browserAPI.storage.sync.set({ userPreferredView: null });
                 }
             }
 
@@ -431,4 +430,4 @@
         }
     }
 
-})(chrome);
+})(globalThis.chrome ?? globalThis.browser);

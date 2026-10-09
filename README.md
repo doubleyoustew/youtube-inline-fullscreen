@@ -42,6 +42,18 @@ To build or modify the extension locally:
 
 Then load the extension into Chrome via the [Extensions page](chrome://extensions), enable Developer Mode, and click **Load unpacked**.
 
+### Firefox / Zen
+
+Since Chromium and current Firefox/Zen builds require different MV3 background configurations, the Firefox manifest is provided separately rather than modifying the existing Chromium manifest. Firefox uses the `background.scripts` configuration in this manifest.
+
+To load the extension in Firefox or Zen Browser:
+
+1. Open `about:debugging`.
+2. Select **This Firefox** (or the equivalent temporary-add-on page in Zen).
+3. Click **Load Temporary Add-on...** and choose `app/manifest.firefox.json`.
+
+Chrome and Chromium browsers should continue using `app/manifest.json` from the [Extensions page](chrome://extensions).
+
 ## License
 
 This project is licensed under the **GNU General Public License v3.0**.
