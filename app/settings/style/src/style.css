@@ -1,7 +1,5 @@
-@tailwind base;
-@tailwind layout;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "daisyui";
 
 .ytif-swap:not(.ytif-active) .ytif-swap-on {
   display: none;
