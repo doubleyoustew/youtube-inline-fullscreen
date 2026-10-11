@@ -35,25 +35,12 @@
       const autoEnable = settings.autoEnable || false; // Default to false if autoEnable is not set
 
       if (window.location.pathname.includes('/watch')) {
+        // keep the global settings in sync in case they haven't loaded yet
+        globalSettings = { ...globalSettings, ...settings };
+
         // handle auto enable
         if (autoEnable) {
-          if (!isFullscreen()) {
-            // Wait for layout containers to be ready to prevent race condition
-            // where .ytif-fullscreen CSS is applied before YouTube's layout elements exist
-            if (
-              document.querySelector('#full-bleed-container') ||
-              document.querySelector('ytd-watch-flexy')
-            ) {
-              toggleFullScreen();
-            } else {
-              // Retry after a short delay to allow YouTube's layout to render
-              setTimeout(() => {
-                if (!isFullscreen() && document.querySelector('#full-bleed-container')) {
-                  toggleFullScreen();
-                }
-              }, 100);
-            }
-          }
+          autoEnableFullScreen();
         }
 
         // if auto enable is off, check if we need to restore the theater mode toggle
@@ -99,10 +86,21 @@
       }
 
       if (oldValue.autoEnable !== newValue.autoEnable) {
-        if (newValue.autoEnable && !isFullscreen()) {
-          toggleFullScreen();
-        } else if (!newValue.autoEnable && isFullscreen()) {
-          toggleFullScreen();
+        if (newValue.autoEnable) {
+          // only enter fullscreen on a ready watch page
+          autoEnableFullScreen();
+        } else if (isFullscreen()) {
+          // exit the active session, deferring if a transition is in progress
+          // so the exit is not dropped
+          if (isTransitioning) {
+            setTimeout(() => {
+              if (isFullscreen() && !globalSettings?.autoEnable) {
+                toggleFullScreen();
+              }
+            }, 150);
+          } else {
+            toggleFullScreen();
+          }
         }
       }
 
@@ -172,8 +170,10 @@
     document.removeEventListener('mouseleave', onMouseLeave);
     document.removeEventListener('focusin', onFocusIn);
     document.removeEventListener('focusout', onFocusOut);
-    playerObject.removeEventListener('play', handleMastheadPlay);
-    playerObject.removeEventListener('pause', handleMastheadPause);
+    if (playerObject) {
+      playerObject.removeEventListener('play', handleMastheadPlay);
+      playerObject.removeEventListener('pause', handleMastheadPause);
+    }
     showMasthead();
 
     playerObject = null;
@@ -411,7 +411,10 @@
    * toggles theater mode by triggering a click event on the theater button
    */
   function toggleTheaterView() {
-    document.querySelector('.ytp-size-button.ytp-button').dispatchEvent(new Event('click'));
+    const button = document.querySelector('.ytp-size-button.ytp-button');
+    if (button) {
+      button.dispatchEvent(new Event('click'));
+    }
   }
 
   /**
@@ -432,6 +435,39 @@
    */
   function isFullscreen() {
     return document.documentElement.classList.contains('ytif-fullscreen');
+  }
+
+  /**
+   * checks whether the watch page has all elements
+   * required to enter inline fullscreen
+   */
+  function isPlayerReady() {
+    return (
+      window.location.pathname === '/watch' &&
+      document.querySelector('#full-bleed-container') !== null &&
+      document.querySelector('.ytp-size-button.ytp-button') !== null &&
+      document.querySelector('.video-stream') !== null
+    );
+  }
+
+  /**
+   * enters fullscreen automatically when the option is enabled
+   * and the watch page player is fully ready
+   * @param {boolean} canRetry - allow one retry if the layout is not ready yet
+   */
+  function autoEnableFullScreen(canRetry = true) {
+    if (!globalSettings?.autoEnable || isFullscreen()) {
+      return;
+    }
+
+    if (isPlayerReady()) {
+      toggleFullScreen();
+    } else if (canRetry) {
+      // retry once after a short delay to allow YouTube's layout to render
+      setTimeout(() => {
+        autoEnableFullScreen(false);
+      }, 100);
+    }
   }
 
   /**
