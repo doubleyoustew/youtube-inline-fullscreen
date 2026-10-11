@@ -130,6 +130,16 @@
   }
 
   /**
+   * reflect the current fullscreen state as the player button's toggle state
+   */
+  function updatePlayerButtonState() {
+    const btn = document.querySelector('.ytif-button');
+    if (btn) {
+      btn.setAttribute('aria-pressed', String(isFullscreen()));
+    }
+  }
+
+  /**
    * Searchbar / Masthead autohide logic
    */
   let inactivityTimeout;
@@ -265,6 +275,7 @@
           let button = document.createElement('button');
           button.classList = 'ytp-button ytif-button';
           button.title = 'Inline Fullscreen';
+          button.setAttribute('aria-label', 'Toggle Fullscreen');
 
           button.setAttribute('data-tooltip', buttonTooltipText('Windowed Fullscreen'));
           button.setAttribute('data-tooltip-active', buttonTooltipText('Exit Windowed Fullscreen'));
@@ -274,7 +285,8 @@
           button.appendChild(icon);
 
           document.querySelector('.ytp-right-controls').prepend(button);
-          button.addEventListener('mouseup', toggleFullScreen);
+          updatePlayerButtonState();
+          button.addEventListener('click', toggleFullScreen);
         }
       }
     });
@@ -340,6 +352,9 @@
 
       // toggle class
       document.documentElement.classList.toggle('ytif-fullscreen');
+
+      // reflect the new state on the player button
+      updatePlayerButtonState();
 
       // entering fullscreen
       if (isFullscreen()) {

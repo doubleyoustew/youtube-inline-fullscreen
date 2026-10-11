@@ -97,13 +97,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Handle shortcut edit input
   document.getElementById('fullscreenShortcut').addEventListener('keydown', function (e) {
-    if (!e.ctrlKey && !e.metaKey) {
-      e.preventDefault();
+    // allow copy & paste shortcuts to work as usual
+    if (e.ctrlKey || e.metaKey) return;
 
-      if (/^[a-z]$/.test(e.key)) {
-        this.value = e.key;
-        this.dispatchEvent(new Event('change'));
-      }
+    // only intercept the keys used for shortcut selection (single letters),
+    // so that Tab, Escape, arrow keys, etc. keep their default behavior
+    if (!/^[a-zA-Z]$/.test(e.key)) return;
+
+    e.preventDefault();
+
+    // ignore shifted letters, which would produce an invalid shortcut
+    if (!e.shiftKey) {
+      this.value = e.key;
+      this.dispatchEvent(new Event('change'));
     }
   });
 

@@ -14,6 +14,7 @@
     --text-sm--line-height: calc(1.25 / 0.875);
     --text-xl: 1.25rem;
     --text-xl--line-height: calc(1.75 / 1.25);
+    --font-weight-normal: 400;
     --font-weight-bold: 700;
     --radius-lg: 0.5rem;
     --default-font-family: var(--font-sans);
@@ -2897,6 +2898,9 @@
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
+  .h-auto {
+    height: auto;
+  }
   .min-h-\[2\.2em\] {
     min-height: 2.2em;
   }
@@ -2961,6 +2965,20 @@
   .rounded-lg {
     border-radius: var(--radius-lg);
   }
+  .btn-link {
+    @layer daisyui {
+      text-decoration-line: underline;
+      --btn-bg: #0000;
+      color: var(--btn-color, var(--color-primary));
+      --btn-border: #0000;
+      background-image: none;
+      --btn-inset: 0 0 0 0 oklch(0% 0 0/0);
+      --btn-shadow: 0 0 0 0 oklch(0% 0 0/0);
+    }
+  }
+  .p-0 {
+    padding: calc(var(--spacing) * 0);
+  }
   .px-0 {
     padding-inline: calc(var(--spacing) * 0);
   }
@@ -2990,6 +3008,10 @@
   .font-bold {
     --tw-font-weight: var(--font-weight-bold);
     font-weight: var(--font-weight-bold);
+  }
+  .font-normal {
+    --tw-font-weight: var(--font-weight-normal);
+    font-weight: var(--font-weight-normal);
   }
   .link-error {
     &:hover {
