@@ -4,6 +4,15 @@
   "version": "1.4.0",
   "description": "Make the most out of your screen space with a single click!",
 
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "youtube-inline-fullscreen@doubleyoustew",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  },
+
   "icons": {
     "16": "icons/fullscreen-16.png",
     "48": "icons/fullscreen-48.png",
