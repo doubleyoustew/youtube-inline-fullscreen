@@ -1,8 +1,7 @@
 {
   "name": "youtube-inline-fullscreen",
-  "version": "1.0.0",
-  "description": "yoyo",
-  "main": "",
+  "version": "1.4.1",
+  "description": "Make the most out of your screen space with a single click!",
   "scripts": {
     "sass": "sass app:app",
     "sass:watch": "sass --watch app:app",
@@ -12,8 +11,8 @@
     "format:check": "prettier --check .",
     "test": "node scripts/check-defaults.mjs"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "doubleyoustew",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "@tailwindcss/cli": "^4.2.4",
     "daisyui": "^5.0.46",
