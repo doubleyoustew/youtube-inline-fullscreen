@@ -134,33 +134,93 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /**
-   * Check if content script was loaded (it won't be on first install)
+   * in-flight content script installations, keyed by tab id,
+   * so the popup and the toggle button cannot inject concurrently
    */
-  function checkInstalled(doToggleFullscreen = false) {
-    browserAPI.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      if (tabs[0].url?.includes('youtube.com/watch')) {
-        browserAPI.tabs.sendMessage(tabs[0].id, { checkInstalled: true }, function () {
-          if (browserAPI.runtime.lastError) {
-            browserAPI.scripting.insertCSS({
-              target: { tabId: tabs[0].id },
-              files: ['ytif_style.css'],
-            });
+  const installingTabs = new Map();
 
-            browserAPI.scripting.executeScript({
-              target: { tabId: tabs[0].id },
-              files: ['ytif_content_script.js'],
-            });
+  /**
+   * ensure the content script is installed in the given tab,
+   * sharing an in-flight installation between concurrent callers
+   */
+  function ensureInstalled(tabId) {
+    let promise = installingTabs.get(tabId);
+    if (!promise) {
+      promise = installContentScript(tabId).finally(() => {
+        installingTabs.delete(tabId);
+      });
+      installingTabs.set(tabId, promise);
+    }
+    return promise;
+  }
 
-            if (doToggleFullscreen) {
-              setTimeout(() => {
-                browserAPI.tabs.sendMessage(tabs[0].id, { toggleFullScreen: true });
-              }, 200);
-            }
-          } else if (doToggleFullscreen) {
-            browserAPI.tabs.sendMessage(tabs[0].id, { toggleFullScreen: true });
-          }
-        });
-      }
+  /**
+   * inject the content script if it is not running yet
+   */
+  async function installContentScript(tabId) {
+    try {
+      await browserAPI.tabs.sendMessage(tabId, { checkInstalled: true });
+      return;
+    } catch {
+      // no content script in this tab, fall through to injection
+    }
+
+    await browserAPI.scripting.insertCSS({
+      target: { tabId },
+      files: ['ytif_style.css'],
     });
+
+    await browserAPI.scripting.executeScript({
+      target: { tabId },
+      files: ['ytif_content_script.js'],
+    });
+  }
+
+  /**
+   * briefly show a failed state on the toggle button
+   */
+  function flashToggleError() {
+    const button = document.getElementById('toggleFullscreen');
+    if (!button) return;
+
+    button.textContent = 'Toggle failed';
+    button.disabled = true;
+
+    setTimeout(() => {
+      button.textContent = 'Toggle Fullscreen';
+      button.disabled = false;
+    }, 2000);
+  }
+
+  /**
+   * Check if content script was loaded (it won't be on first install),
+   * installing it when needed before an optional toggle is sent
+   */
+  async function checkInstalled(doToggleFullscreen = false) {
+    let tab;
+    try {
+      const tabs = await browserAPI.tabs.query({ active: true, currentWindow: true });
+      tab = tabs[0];
+    } catch (error) {
+      console.error('YouTube Inline Fullscreen: failed to query active tab', error);
+      if (doToggleFullscreen) {
+        flashToggleError();
+      }
+      return;
+    }
+
+    if (!tab?.url?.includes('youtube.com/watch')) return;
+
+    try {
+      await ensureInstalled(tab.id);
+      if (doToggleFullscreen) {
+        await browserAPI.tabs.sendMessage(tab.id, { toggleFullScreen: true });
+      }
+    } catch (error) {
+      console.error('YouTube Inline Fullscreen: failed to install content script', error);
+      if (doToggleFullscreen) {
+        flashToggleError();
+      }
+    }
   }
 });

@@ -21,6 +21,11 @@
 
     // add fullscreen after navigation
     addButton();
+
+    // rebind player listeners when fullscreen remains active after navigation
+    if (isFullscreen()) {
+      refreshPlayerBinding();
+    }
   });
 
   // yt-player-updated triggers when the player is ready.
@@ -28,6 +33,11 @@
   document.addEventListener('yt-player-updated', () => {
     // add fullscreen button
     addButton();
+
+    // rebind player listeners when the player is replaced while fullscreen is active
+    if (isFullscreen()) {
+      refreshPlayerBinding();
+    }
 
     // Automatically enable fullscreen mode
     browserAPI.storage.sync.get('settings', function (result) {
@@ -141,14 +151,53 @@
    * Searchbar / Masthead autohide logic
    */
   let inactivityTimeout;
-  let playerObject;
+  let playerObject = null;
 
-  const masthead = document.getElementById('masthead');
+  /**
+   * (re)bind the play/pause listeners to the current video element,
+   * dropping the listeners that were attached to a previous player
+   */
+  function refreshPlayerBinding() {
+    const stream = document.querySelector('.video-stream');
+
+    // nothing to bind (the new player is not in the DOM yet):
+    // drop the old binding and reset the autohide state
+    if (!stream) {
+      detachPlayerListeners();
+      playerObject = null;
+      clearTimeout(inactivityTimeout);
+      showMasthead();
+      return;
+    }
+
+    // the player did not change, nothing to rebind
+    if (playerObject === stream) {
+      return;
+    }
+
+    // the player was replaced: drop the old binding and reset the autohide state
+    detachPlayerListeners();
+    playerObject = stream;
+    clearTimeout(inactivityTimeout);
+    showMasthead();
+
+    playerObject.addEventListener('play', handleMastheadPlay);
+    playerObject.addEventListener('pause', handleMastheadPause);
+
+    // a freshly bound player is usually playing, so start the autohide timer
+    if (!stream.paused) {
+      startInactivityTimer();
+    }
+  }
+
+  function detachPlayerListeners() {
+    if (!playerObject) return;
+    playerObject.removeEventListener('play', handleMastheadPlay);
+    playerObject.removeEventListener('pause', handleMastheadPause);
+  }
 
   function enableMastheadAutoHide() {
-    if (!playerObject) {
-      playerObject = document.querySelector('.video-stream');
-    }
+    refreshPlayerBinding();
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseleave', onMouseLeave);
@@ -158,9 +207,6 @@
     if (!isPlayerPaused()) {
       startInactivityTimer();
     }
-
-    playerObject.addEventListener('play', handleMastheadPlay);
-    playerObject.addEventListener('pause', handleMastheadPause);
   }
 
   function disableMastheadAutoHide() {
@@ -170,13 +216,14 @@
     document.removeEventListener('mouseleave', onMouseLeave);
     document.removeEventListener('focusin', onFocusIn);
     document.removeEventListener('focusout', onFocusOut);
-    if (playerObject) {
-      playerObject.removeEventListener('play', handleMastheadPlay);
-      playerObject.removeEventListener('pause', handleMastheadPause);
-    }
-    showMasthead();
 
+    detachPlayerListeners();
     playerObject = null;
+    showMasthead();
+  }
+
+  function getMasthead() {
+    return document.getElementById('masthead');
   }
 
   function isPlayerPaused() {
@@ -191,7 +238,8 @@
   }
 
   function isSeekbarVisible() {
-    return window.getComputedStyle(document.querySelector('.ytp-chrome-bottom')).opacity > 0;
+    const seekbar = document.querySelector('.ytp-chrome-bottom');
+    return seekbar ? window.getComputedStyle(seekbar).opacity > 0 : false;
   }
 
   function handleMastheadPlay() {
@@ -202,7 +250,7 @@
   }
 
   function showMasthead() {
-    if (masthead) masthead.classList.remove('ytif-masthead-hidden');
+    getMasthead()?.classList.remove('ytif-masthead-hidden');
   }
 
   function hideMasthead() {
@@ -210,9 +258,7 @@
     if (isMastheadFocused()) {
       startInactivityTimer();
     } else {
-      if (masthead) {
-        masthead.classList.add('ytif-masthead-hidden');
-      }
+      getMasthead()?.classList.add('ytif-masthead-hidden');
     }
   }
 
@@ -256,6 +302,7 @@
       callback({ installed: true });
     } else if (request.toggleFullScreen) {
       toggleFullScreen();
+      callback({ toggled: true });
     }
   });
 
