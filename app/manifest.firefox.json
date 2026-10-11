@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Inline Fullscreen",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Make the most out of your screen space with a single click!",
 
   "browser_specific_settings": {
