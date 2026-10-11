@@ -111,19 +111,21 @@
     }
   });
 
+  /**
+   * tooltip text for the player button,
+   * omitting the shortcut when it is disabled
+   */
+  function buttonTooltipText(label) {
+    return globalSettings.fullscreenShortcut
+      ? label + ' (' + globalSettings.fullscreenShortcut + ')'
+      : label;
+  }
+
   function updatePlayerButtonTooltip() {
-    //"Windowed Fullscreen (w)"
-    //"Exit Windowed Fullscreen (w)";
     const btn = document.querySelector('.ytif-button');
     if (btn) {
-      btn.setAttribute(
-        'data-tooltip',
-        'Windowed Fullscreen (' + globalSettings.fullscreenShortcut + ')'
-      );
-      btn.setAttribute(
-        'data-tooltip-active',
-        'Exit Windowed Fullscreen (' + globalSettings.fullscreenShortcut + ')'
-      );
+      btn.setAttribute('data-tooltip', buttonTooltipText('Windowed Fullscreen'));
+      btn.setAttribute('data-tooltip-active', buttonTooltipText('Exit Windowed Fullscreen'));
     }
   }
 
@@ -264,14 +266,8 @@
           button.classList = 'ytp-button ytif-button';
           button.title = 'Inline Fullscreen';
 
-          button.setAttribute(
-            'data-tooltip',
-            'Windowed Fullscreen (' + globalSettings.fullscreenShortcut + ')'
-          );
-          button.setAttribute(
-            'data-tooltip-active',
-            'Exit Windowed Fullscreen (' + globalSettings.fullscreenShortcut + ')'
-          );
+          button.setAttribute('data-tooltip', buttonTooltipText('Windowed Fullscreen'));
+          button.setAttribute('data-tooltip-active', buttonTooltipText('Exit Windowed Fullscreen'));
 
           let icon = document.createElement('i');
           icon.classList = 'ytif-fullscreen-button';
@@ -307,7 +303,10 @@
     ) {
       switch (event.key) {
         case globalSettings.fullscreenShortcut:
-          toggleFullScreen();
+          // skip when the shortcut is disabled (empty value)
+          if (globalSettings.fullscreenShortcut) {
+            toggleFullScreen();
+          }
           break;
         case 't':
           // exit fullscreen when pressed during inline fullscreen mode

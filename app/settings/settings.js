@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Update keyboard shortcut display
-    document.getElementById('displayFullscreenShortcut').textContent = settings.fullscreenShortcut;
+    document.getElementById('displayFullscreenShortcut').textContent = shortcutLabel(
+      settings.fullscreenShortcut
+    );
   });
 
   // Save the settings when the user changes something
@@ -51,8 +53,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         browserAPI.storage.sync.set({ settings });
 
-        document.getElementById('displayFullscreenShortcut').textContent =
-          settings.fullscreenShortcut;
+        document.getElementById('displayFullscreenShortcut').textContent = shortcutLabel(
+          settings.fullscreenShortcut
+        );
       });
     });
   });
@@ -70,6 +73,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const input = document.getElementById('fullscreenShortcut');
     input.value = DEFAULT_SETTINGS.fullscreenShortcut;
+    input.dispatchEvent(new Event('change'));
+
+    document.querySelector('.ytif-swap').classList.remove('ytif-active');
+  });
+
+  // Handle shortcut disable
+  document.getElementById('disableShortcut').addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const input = document.getElementById('fullscreenShortcut');
+    input.value = '';
     input.dispatchEvent(new Event('change'));
 
     document.querySelector('.ytif-swap').classList.remove('ytif-active');
@@ -105,6 +119,13 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('toggleFullscreen').addEventListener('click', function () {
     checkInstalled(true);
   });
+
+  /**
+   * display label for the fullscreen shortcut
+   */
+  function shortcutLabel(value) {
+    return value || 'Disabled';
+  }
 
   /**
    * Check if content script was loaded (it won't be on first install)
