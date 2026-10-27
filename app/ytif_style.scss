@@ -1,14 +1,48 @@
 .ytif-fullscreen {
   scrollbar-width: none;
+  overflow: hidden !important;
+
+  // hide everything around the player: related videos, comments, side panels and the icon rail
+  ytd-watch-flexy #below,
+  ytd-watch-flexy #secondary,
+  ytd-watch-flexy #fixed-side-menu,
+  ytd-mini-guide-renderer {
+    display: none !important;
+  }
 
   #page-manager {
     margin-top: 0 !important;
   }
 
-  #full-bleed-container {
+  // size the player itself instead of relying on theater mode's #full-bleed-container,
+  // which YouTube no longer fills with the player
+  #player-container-outer,
+  #player-container-inner,
+  #player-container,
+  ytd-player#ytd-player,
+  ytd-player#ytd-player #container,
+  #movie_player {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
     height: 100vh !important;
-    max-height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    min-width: 0 !important;
     min-height: 0 !important;
+    margin: 0 !important;
+    z-index: 1000 !important;
+  }
+
+  // black letterboxing instead of the page showing through the transparent player
+  #movie_player {
+    background-color: #000 !important;
+  }
+
+  // keep the autohiding masthead above the player
+  #masthead-container {
+    z-index: 2020 !important;
   }
 
   .ytp-size-button {

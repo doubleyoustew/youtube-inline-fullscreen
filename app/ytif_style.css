@@ -1,13 +1,39 @@
 .ytif-fullscreen {
   scrollbar-width: none;
+  overflow: hidden !important;
+}
+.ytif-fullscreen ytd-watch-flexy #below,
+.ytif-fullscreen ytd-watch-flexy #secondary,
+.ytif-fullscreen ytd-watch-flexy #fixed-side-menu,
+.ytif-fullscreen ytd-mini-guide-renderer {
+  display: none !important;
 }
 .ytif-fullscreen #page-manager {
   margin-top: 0 !important;
 }
-.ytif-fullscreen #full-bleed-container {
+.ytif-fullscreen #player-container-outer,
+.ytif-fullscreen #player-container-inner,
+.ytif-fullscreen #player-container,
+.ytif-fullscreen ytd-player#ytd-player,
+.ytif-fullscreen ytd-player#ytd-player #container,
+.ytif-fullscreen #movie_player {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
   height: 100vh !important;
-  max-height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
   min-height: 0 !important;
+  margin: 0 !important;
+  z-index: 1000 !important;
+}
+.ytif-fullscreen #movie_player {
+  background-color: #000 !important;
+}
+.ytif-fullscreen #masthead-container {
+  z-index: 2020 !important;
 }
 .ytif-fullscreen .ytp-size-button {
   display: none !important;

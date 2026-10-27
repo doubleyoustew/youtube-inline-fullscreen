@@ -1,7 +1,4 @@
 (function (browserAPI) {
-  // holds user preference of theater or normal mode
-  let userPreferredView;
-
   // isTransitioning: if true, we're in the process of entering or leaving fullscreen
   let isTransitioning = false;
 
@@ -29,7 +26,7 @@
   });
 
   // yt-player-updated triggers when the player is ready.
-  // mostly needed because the theater mode toggle is not ready before so things like autoEnable need to go here.
+  // mostly needed because the player is not ready before so things like autoEnable need to go here.
   document.addEventListener('yt-player-updated', () => {
     // add fullscreen button
     addButton();
@@ -52,23 +49,6 @@
         if (autoEnable) {
           autoEnableFullScreen();
         }
-
-        // if auto enable is off, check if we need to restore the theater mode toggle
-        // otherwise store preference in local variable
-        browserAPI.storage.sync.get('userPreferredView', function (result) {
-          if (!autoEnable) {
-            if (!isFullscreen()) {
-              if (result.userPreferredView && getPlayerMode() != result.userPreferredView) {
-                toggleTheaterView();
-              }
-              browserAPI.storage.sync.set({ userPreferredView: null });
-            }
-          } else {
-            if (result.userPreferredView) {
-              userPreferredView = result.userPreferredView;
-            }
-          }
-        });
       }
     });
   });
@@ -372,10 +352,6 @@
           if (isFullscreen()) {
             event.preventDefault();
             event.stopImmediatePropagation();
-
-            userPreferredView = userPreferredView === 'theater' ? 'default' : 'theater';
-            browserAPI.storage.sync.set({ userPreferredView: userPreferredView });
-
             toggleFullScreen();
           }
           break;
@@ -391,7 +367,7 @@
   }
 
   /**
-   * toggles fullscreen -> adds class to document and switches player mode if needed
+   * toggles fullscreen -> adds class to document
    */
   function toggleFullScreen(e) {
     if (!isTransitioning) {
@@ -405,23 +381,6 @@
 
       // entering fullscreen
       if (isFullscreen()) {
-        // theater mode needs to be on,
-        // but we'll restore the users preference when leaving fullscreen
-        userPreferredView = getPlayerMode();
-
-        // just in case another tab is being opened, save the theater mode preference to retrieve later
-        browserAPI.storage.sync.get('userPreferredView', function (result) {
-          if (!result.userPreferredView) {
-            browserAPI.storage.sync.set({ userPreferredView: userPreferredView });
-          } else {
-            userPreferredView = result.userPreferredView;
-          }
-        });
-
-        if (getPlayerMode() === 'default') {
-          toggleTheaterView();
-        }
-
         // start hiding masthead
         enableMastheadAutoHide();
       } else {
@@ -429,17 +388,6 @@
 
         // stop hiding masthead
         disableMastheadAutoHide();
-
-        // don't toggle theater mode when not on /watch page
-        if (window.location.pathname.includes('/watch')) {
-          // if we just left fullscreen and user doesn't use theater mode, turn it off
-          if (getPlayerMode() != userPreferredView) {
-            toggleTheaterView();
-          }
-
-          // since we exited fs mode, clear the preferred view form storage
-          browserAPI.storage.sync.set({ userPreferredView: null });
-        }
       }
 
       // trigger window resize to recalculate player width (important for progress bar)
@@ -452,28 +400,6 @@
         isTransitioning = false;
       }, 100);
     }
-  }
-
-  /**
-   * toggles theater mode by triggering a click event on the theater button
-   */
-  function toggleTheaterView() {
-    const button = document.querySelector('.ytp-size-button.ytp-button');
-    if (button) {
-      button.dispatchEvent(new Event('click'));
-    }
-  }
-
-  /**
-   * checks which player mode is active
-   * @return {string}
-   */
-  function getPlayerMode() {
-    const watchFlexy = document.querySelector('ytd-watch-flexy');
-    if (watchFlexy && watchFlexy.attributes && watchFlexy.attributes.theater) {
-      return 'theater';
-    }
-    return 'default';
   }
 
   /**
@@ -491,8 +417,7 @@
   function isPlayerReady() {
     return (
       window.location.pathname === '/watch' &&
-      document.querySelector('#full-bleed-container') !== null &&
-      document.querySelector('.ytp-size-button.ytp-button') !== null &&
+      document.querySelector('#movie_player') !== null &&
       document.querySelector('.video-stream') !== null
     );
   }
